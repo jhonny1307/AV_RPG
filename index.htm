@@ -1,1 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+  <style>
+    .menu-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: right 0.3s ease;
+      z-index: 10;
+    }
 
+    .menu-btn.deslocado {
+      right: 276px;
+    }
+
+    .menu-btn span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: #000;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 260px;
+      height: 100%;
+      background: #fff;
+      border-left: 1px solid #ccc;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar.aberta {
+      transform: translateX(0);
+    }
+
+    .sidebar table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .sidebar th,
+    .sidebar td {
+      text-align: left;
+      padding: 8px 12px;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+
+    .sidebar th {
+      border-bottom: 1px solid #ccc;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="menu-btn" id="menuBtn">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="sidebar" id="sidebar">
+    <table id="tabela">
+      <thead><tr id="tabelaHead"></tr></thead>
+      <tbody id="tabelaBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const tabelaHead = document.getElementById('tabelaHead');
+    const tabelaBody = document.getElementById('tabelaBody');
+
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('aberta');
+      menuBtn.classList.toggle('deslocado');
+    });
+
+    // Cada linha do csv segue o formato "id@campo1;campo2;...".
+    // O "id" (antes do @) é guardado à parte para uso futuro,
+    // e não aparece na renderização.
+    function parseLinha(linha) {
+      const arroba = linha.indexOf('@');
+      const id = linha.slice(0, arroba);
+      const campos = linha.slice(arroba + 1).split(';');
+      return { id, campos };
+    }
+
+    fetch('list.csv')
+      .then(res => res.text())
+      .then(texto => {
+        const linhas = texto.trim().split('\n').filter(Boolean);
+
+        const cabecalho = parseLinha(linhas[0]);
+        cabecalho.campos.forEach(nome => {
+          const th = document.createElement('th');
+          th.textContent = nome;
+          tabelaHead.appendChild(th);
+        });
+
+        linhas.slice(1).forEach(linha => {
+          const { id, campos } = parseLinha(linha);
+          const tr = document.createElement('tr');
+          tr.dataset.id = id; // guardado para uso futuro
+
+          campos.forEach(valor => {
+            const td = document.createElement('td');
+            td.textContent = valor;
+            tr.appendChild(td);
+          });
+
+          tabelaBody.appendChild(tr);
+        });
+      })
+      .catch(err => {
+        sidebar.textContent = 'Erro ao carregar list.csv';
+        console.error(err);
+      });
+  </script>
+</body>
+</html>

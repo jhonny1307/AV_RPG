@@ -95,14 +95,14 @@
       menuBtn.classList.toggle('deslocado');
     });
 
-    // Cada linha do csv segue o formato "id@campo1;campo2;...".
-    // O "id" (antes do @) é guardado à parte para uso futuro,
-    // e não aparece na renderização.
+    // Cada linha do csv segue o formato "user;repo@campo1;campo2;...".
+    // "user" e "repo" (antes do @) são guardados à parte para uso futuro,
+    // e não aparecem na renderização.
     function parseLinha(linha) {
       const arroba = linha.indexOf('@');
-      const id = linha.slice(0, arroba);
+      const [user, repo] = linha.slice(0, arroba).split(';');
       const campos = linha.slice(arroba + 1).split(';');
-      return { id, campos };
+      return { user, repo, campos };
     }
 
     fetch('list.csv')
@@ -117,10 +117,11 @@
           tabelaHead.appendChild(th);
         });
 
-        linhas.slice(1).forEach(linha => {
-          const { id, campos } = parseLinha(linha);
+        linhas.slice(2).forEach(linha => {
+          const { user, repo, campos } = parseLinha(linha);
           const tr = document.createElement('tr');
-          tr.dataset.id = id; // guardado para uso futuro
+          tr.dataset.user = user; // guardado para uso futuro
+          tr.dataset.repo = repo; // guardado para uso futuro
 
           campos.forEach(valor => {
             const td = document.createElement('td');

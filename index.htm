@@ -1,11 +1,18 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
+    body {
+      font-family: "Open Sans", Arial, sans-serif;
+    }
+
     .menu-btn {
       position: fixed;
       top: 16px;
@@ -67,6 +74,14 @@
     .sidebar th {
       border-bottom: 1px solid #ccc;
       font-weight: 600;
+    }
+
+    .sidebar tbody tr {
+      cursor: pointer;
+    }
+
+    .sidebar tbody tr:hover {
+      background: #f5f5f5;
     }
 
     #conteudo {
@@ -153,6 +168,21 @@
             const td = document.createElement('td');
             td.textContent = valor;
             tr.appendChild(td);
+          });
+
+          tr.addEventListener('click', () => {
+            const nome = campos[0]; // "name"
+            const url = `https://cdn.jsdelivr.net/gh/${user}/${repo}/${nome}.md`;
+
+            fetch(url)
+              .then(res => res.text())
+              .then(md => {
+                conteudo.innerHTML = marked.parse(md);
+              })
+              .catch(err => {
+                conteudo.textContent = 'Erro ao carregar o arquivo';
+                console.error(err);
+              });
           });
 
           tabelaBody.appendChild(tr);
